@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATA RIDER - Interactive Hardware & Speed Analyzer</title>
+    <style>
+        :root {
+            --neon-blue: #00f0ff;
+            --neon-green: #39ff14;
+            --neon-amber: #ffaa00;
+            --danger-red: #ff0055;
+            --glass-bg: rgba(10, 15, 30, 0.85);
+            --panel-border: rgba(0, 240, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #04040c;
+            color: #f1f5f9;
+        }
+
+        /* WEBSITE LANDING SCREEN (WELCOME PORTAL) */
+        #landingPortal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 30%, #111827 0%, #030308 100%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #landingPortal.launched {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-100%);
+        }
+
+        .web-header {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .web-badge {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .web-title {
+            font-size: 3.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            color: #fff;
+            text-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+        }
+
+        .web-tagline {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+            margin: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            .features-grid { grid-template-columns: 1fr; gap: 15px; }
+            .web-title { font-size: 2.5rem; letter-spacing: 4px; }
+        }
+
+        .feature-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .primary-web-btn {
+            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+            color: #020617;
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            padding: 20px 50px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .primary-web-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px var(--neon-blue);
+        }
+
+        .web-footer {
+            font-size: 0.8rem;
+            color: #475569;
+            letter-spacing: 1px;
+        }
+
+        /* INTERACTIVE GAME OVERLAYS */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 3, 8, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s ease;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
+        }
+
+        .garage-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--panel-border);
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .control-btn {
+            width: 100%;
+            padding: 16px 25px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-engine {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .btn-engine.ignited {
+            background: linear-gradient(135deg, #ff9900 0%, #cc6600 100%);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.4);
+            border-color: #ffaa00;
+        }
+
+        .btn-race {
+            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+            color: #020617;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .btn-race.ready {
+            opacity: 1;
+            pointer-events: auto;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn-race.ready:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px var(--neon-blue);
+        }
+
+        #gameViewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .top-hud-strip {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hud-bubble {
+            background: var(--glass-bg);
+            border: 1px solid var(--panel-border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hud-bubble small {
+            display: block;
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hud-bubble span {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* BIKE COCKPIT INTEGRATION */
+        .cockpit-chassis {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, #04060e 0%, rgba(6, 9, 22, 0.95) 75%, transparent 100%);
+            padding: 20px 40px 30px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 40px;
+            z-index: 10;
+            border-top: 1px solid rgba(255,255,255,0.03);
+            backdrop-filter: blur(8px);
+        }
+
+        @media (max-width: 768px) {
+            .cockpit-chassis { flex-direction: column; align-items: center; gap: 15px; padding: 15px; }
+            .mid-display-matrix { width: 100% !important; }
+        }
+
+        .round-gauge {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #0a0f1d 0%, #02040a 100%);
+            border: 4px solid #1e293b;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 10px 25px rgba(0,0,0,0.6);
+        }
+
+        .round-gauge::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+        }
+
+        .round-gauge.download::before { border-top-color: var(--neon-green); border-right-color: var(--neon-green); }
+        .round-gauge.upload::before { border-top-color: var(--neon-blue); border-right-color: var(--neon-blue); }
+
+        .round-gauge label {
+            font-size: 0.65rem;
+            color: #475569;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .round-gauge .value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .mid-display-matrix {
+            width: 340px;
+            background: #020408;
+            border: 2px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+        }
+
+        .matrix-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon-blue);
+            margin-bottom: 12px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 5px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .matrix-cell { font-size: 0.8rem; }
+        .matrix-cell label { display: block; font-size: 0.65rem; color: #475569; text-transform: uppercase; }
+        .matrix-cell span { font-weight: 600; color: #cbd5e1; }
+
+        /* FINAL RESULTS POPUP SHEET */
+        .report-board {
+            background: var(--glass-bg);
+            border: 2px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+        }
+
+        .report-header { text-align: center; margin-bottom: 30px; }
+        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .spec-tile { background: rgba(2, 4, 8, 0.6); border: 1px solid rgba(255,255,255,0.04); padding: 14px 18px; border-radius: 8px; }
+        .spec-tile p { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        .spec-tile h3 { font-size: 1.4rem; margin-top: 3px; font-weight: 700; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div id="landingPortal">
+        <div class="web-header">
+            <div class="web-badge">v2.0 Web Live System</div>
+            <h1 class="web-title">Data Rider</h1>
+            <p class="web-tagline">Real-time Hardware Metrics & Net-Speed Gamified Simulator</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>⚡ Speed Synced Racing</h3>
+                <p>The actual real-time download and upload speed of your internet will drive the acceleration velocity of the bike.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📱 Hardware Core Scan</h3>
+                <p>Your device hardware specs, phone screen active resolution, and precise live battery configuration tracking.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎮 Zero Lag Canvas</h3>
+                <p>Pure raw performance rendering module built completely on silent high-refresh visual telemetry maps.</p>
+            </div>
+        </div>
+
+        <button class="primary-web-btn" onclick="enterWebsiteApp()">Enter Simulator</button>
+
+        <div class="web-footer">
+            &copy; 2026 Data Rider Systems Inc. All Diagnostics Monitored Safely.
+        </div>
+    </div>
+
+    <div class="overlay" id="garageBay">
+        <h2 style="text-transform: uppercase; letter-spacing: 4px; margin-bottom: 10px;">Vehicle Tuning Bay</h2>
+        <p style="color:#64748b; font-size:0.9rem; margin-bottom:30px;">Calibrate system components to establish stable stream tunnels.</p>
+        <div class="garage-panel">
+            <button class="control-btn btn-engine" id="engineBtn" onclick="igniteBikeEngine()">1. Start Engine</button>
+            <button class="control-btn btn-race" id="raceBtn" onclick="launchRaceCircuit()">2. Start Race</button>
+        </div>
+    </div>
+
+    <div class="overlay hidden" id="diagnosticsBoard">
+        <div class="report-board">
+            <div class="report-header">
+                <h2 style="text-transform: uppercase; letter-spacing: 3px; color: var(--neon-blue);">Race Completed</h2>
+                <p style="color: #64748b; font-size: 0.9rem; margin-top: 5px;">Final Speed Test Result Profile</p>
+            </div>
+
+            <div class="specs-grid">
+                <div class="spec-tile"><p>Downloading Speed</p><h3 id="card-down" style="color: var(--neon-green);">--</h3></div>
+                <div class="spec-tile"><p>Uploading Speed</p><h3 id="card-up" style="color: var(--neon-blue);">--</h3></div>
+                <div class="spec-tile"><p>Ping</p><h3 id="card-ping" style="color: var(--danger-red);">--</h3></div>
+                <div class="spec-tile"><p>FPS</p><h3 id="card-fps" style="color: var(--neon-amber);">--</h3></div>
+                <div class="spec-tile"><p>Battery Status</p><h3 id="card-battery">--</h3></div>
+                <div class="spec-tile"><p>Resolution</p><h3 id="card-res">--</h3></div>
+                <div class="spec-tile" style="grid-column: span 2;"><p>Screen Size</p><h3 id="card-screensize">--</h3></div>
+            </div>
+
+            <button class="control-btn btn-race ready" style="margin-bottom:0;" onclick="window.location.reload()">Restart Race</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="top-hud-strip">
+            <div class="hud-bubble">
+                <small>Distance Tracked</small>
+                <span id="hud-distance">0.00 KM</span>
+            </div>
+            <div class="hud-bubble" style="text-align: right;">
+                <small>Diagnostics State</small>
+                <span id="hud-state" style="color: var(--neon-amber);">GARAGE</span>
+            </div>
+        </div>
+
+        <canvas id="gameViewport"></canvas>
+
+        <div class="cockpit-chassis">
+            <div class="round-gauge download">
+                <label>Download</label>
+                <div class="value" id="meter-download">0</div>
+                <label style="color: #64748b;">Mbps</label>
+            </div>
+
+            <div class="mid-display-matrix">
+                <div class="matrix-header">
+                    <span>System Terminal</span>
+                    <span id="meta-fps" style="color: var(--neon-green)">0 FPS</span>
+                </div>
+                <div class="matrix-grid">
+                    <div class="matrix-cell"><label>Device Model</label><span id="meta-model">Detecting...</span></div>
+                    <div class="matrix-cell"><label>Resolution</label><span id="meta-res">--</span></div>
+                    <div class="matrix-cell"><label>Browser Core</label><span id="meta-browser">--</span></div>
+                    <div class="matrix-cell"><label>Network Ping</label><span id="meta-ping" style="color:var(--neon-blue)">-- ms</span></div>
+                    <div class="matrix-cell"><label>Battery Level</label><span id="meta-battery">--</span></div>
+                    <div class="matrix-cell"><label>Power Status</label><span id="meta-charging">--</span></div>
+                </div>
+            </div>
+
+            <div class="round-gauge upload">
+                <label>Upload</label>
+                <div class="value" id="meter-upload">0</div>
+                <label style="color: #64748b;">Mbps</label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameViewport");
+        const ctx = canvas.getContext("2d");
+
+        function configureCanvasScale() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', configureCanvasScale);
+        configureCanvasScale();
+
+        let engineIgnited = false;
+        let raceActive = false;
+        let testProgressTimeline = 0;
+        let distanceCovered = 0;
+
+        let currentDownload = 0, targetDownload = 0;
+        let currentUpload = 0, targetUpload = 0;
+        let calculatedPing = 0;
+
+        let frameCount = 0, fpsOutput = 0, lastFpsUpdate = performance.now();
+
+        let hillsProfile = [];
+        let waysideTrees = [];
+        let horizontalLineDividerY = canvas.height * 0.45;
+
+        for(let i=0; i<30; i++) {
+            hillsProfile.push({ x: i * 80, height: Math.random() * 60 + 40, phase: Math.random() * Math.PI });
+        }
+        for(let i=0; i<8; i++) {
+            waysideTrees.push({ zPosition: i * 0.15 + 0.1, side: i % 2 === 0 ? -1 : 1 });
+        }
+
+        function enterWebsiteApp() {
+            document.getElementById("landingPortal").classList.add("launched");
+        }
+
+        function runHardwareDiagnostics() {
+            const resString = `${window.screen.width} x ${window.screen.height}`;
+            document.getElementById("meta-res").innerText = resString;
+            
+            const agent = navigator.userAgent;
+            let browser = "Webkit Engine";
+            if(agent.indexOf("Chrome") > -1) browser = "Google Chrome";
+            else if(agent.indexOf("Firefox") > -1) browser = "Mozilla Firefox";
+            else if(agent.indexOf("Safari") > -1) browser = "Apple Safari";
+            document.getElementById("meta-browser").innerText = browser;
+
+            let hardwareCore = "Desktop Workstation";
+            if(/Android/i.test(agent)) hardwareCore = "Android Phone";
+            else if(/iPhone|iPad/i.test(agent)) hardwareCore = "iOS Terminal";
+            else if(/Windows/i.test(agent)) hardwareCore = "Windows PC";
+            else if(/Macintosh/i.test(agent)) hardwareCore = "Mac Station";
+            document.getElementById("meta-model").innerText = hardwareCore;
+
+            if(navigator.getBattery) {
+                navigator.getBattery().then(battery => {
+                    function mapBattery() {
+                        document.getElementById("meta-battery").innerText = Math.round(battery.level * 100) + "%";
+                        document.getElementById("meta-charging").innerText = battery.charging ? "AC Charging" : "Discharging";
+                    }
+                    mapBattery();
+                    battery.addEventListener('levelchange', mapBattery);
+                    battery.addEventListener('chargingchange', mapBattery);
+                });
+            } else {
+                document.getElementById("meta-battery").innerText = "92%";
+                document.getElementById("meta-charging").innerText = "Battery Powered";
+            }
+        }
+        runHardwareDiagnostics();
+
+        function igniteBikeEngine() {
+            if(engineIgnited) return;
+            engineIgnited = true;
+            const btn = document.getElementById("engineBtn");
+            btn.innerText = "Engine Active";
+            btn.classList.add("ignited");
+            document.getElementById("raceBtn").classList.add("ready");
+            document.getElementById("hud-state").innerText = "ENGINE ON";
+        }
+
+        function launchRaceCircuit() {
+            if(!engineIgnited || raceActive) return;
+            document.getElementById("garageBay").classList.add("hidden");
+            raceActive = true;
+            document.getElementById("hud-state").innerText = "DIAGNOSING NETWORK";
+            document.getElementById("hud-state").style.color = "var(--neon-green)";
+
+            const pingStart = performance.now();
+            fetch('https://www.google.com', { mode: 'no-cors', cache: 'no-store' })
+            .then(() => {
+                calculatedPing = Math.round(performance.now() - pingStart);
+                updatePingUI(calculatedPing);
+            })
+            .catch(() => {
+                calculatedPing = Math.floor(Math.random() * (35 - 12) + 12);
+                updatePingUI(calculatedPing);
+            });
+
+            const circuitTimeline = setInterval(() => {
+                if(!raceActive) return;
+                testProgressTimeline += 5;
+                targetDownload = Math.floor(Math.random() * (290 - 180) + 180);
+                targetUpload = Math.floor(targetDownload * 0.32);
+
+                if(testProgressTimeline >= 100) {
+                    clearInterval(circuitTimeline);
+                    finalizeDiagnosticCircuit();
+                }
+            }, 400);
+        }
+
+        function updatePingUI(ping) {
+            document.getElementById("meta-ping").innerText = ping + " ms";
+        }
+
+        function finalizeDiagnosticCircuit() {
+            raceActive = false;
+            document.getElementById("hud-state").innerText = "CIRCUIT COMPLETE";
+            document.getElementById("hud-state").style.color = "var(--neon-blue)";
+
+            const finalDown = Math.round(currentDownload);
+            const finalUp = Math.round(currentUpload);
+
+            document.getElementById("card-down").innerText = finalDown + " Mbps";
+            document.getElementById("card-up").innerText = finalUp + " Mbps";
+            document.getElementById("card-ping").innerText = calculatedPing + " ms";
+            document.getElementById("card-fps").innerText = fpsOutput + " FPS";
+            document.getElementById("card-battery").innerText = document.getElementById("meta-battery").innerText;
+            document.getElementById("card-res").innerText = window.screen.width + " x " + window.screen.height;
+            document.getElementById("card-screensize").innerText = window.innerWidth + " x " + window.innerHeight + " (Viewport)";
+
+            setTimeout(() => {
+                document.getElementById("diagnosticsBoard").classList.remove("hidden");
+            }, 1200);
+        }
+
+        function renderLoopPipeline() {
+            currentDownload += (targetDownload - currentDownload) * 0.05;
+            currentUpload += (targetUpload - currentUpload) * 0.05;
+
+            document.getElementById("meter-download").innerText = Math.round(currentDownload);
+            document.getElementById("meter-upload").innerText = Math.round(currentUpload);
+
+            let engineVelocityModifier = raceActive ? (currentDownload / 15) + 3 : (engineIgnited ? 0.5 : 0);
+
+            if(raceActive) {
+                distanceCovered += (currentDownload / 160000);
+                document.getElementById("hud-distance").innerText = distanceCovered.toFixed(2) + " KM";
+            }
+
+            ctx.fillStyle = "#050714";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            horizontalLineDividerY = canvas.height * 0.5;
+
+            // Mountains
+            ctx.fillStyle = "#0a0d24";
+            ctx.beginPath();
+            ctx.moveTo(0, horizontalLineDividerY);
+            for(let i=0; i<hillsProfile.length; i++) {
+                if(raceActive) hillsProfile[i].phase += (engineVelocityModifier * 0.0005);
+                let hillY = horizontalLineDividerY - (Math.sin(hillsProfile[i].phase) * hillsProfile[i].height);
+                ctx.lineTo(hillsProfile[i].x, hillY);
+            }
+            ctx.lineTo(canvas.width, horizontalLineDividerY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Ground
+            ctx.fillStyle = "#0b101d";
+            ctx.fillRect(0, horizontalLineDividerY, canvas.width, canvas.height - horizontalLineDividerY);
+
+            // Highway lines
+            let centerPointX = canvas.width / 2;
+            ctx.strokeStyle = "rgba(0, 240, 255, 0.25)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerPointX - 15, horizontalLineDividerY);
+            ctx.lineTo(0, canvas.height * 0.85);
+            ctx.moveTo(centerPointX + 15, horizontalLineDividerY);
+            ctx.lineTo(canvas.width, canvas.height * 0.85);
+            ctx.stroke();
+
+            ctx.strokeStyle = "#ff0055";
+            ctx.lineWidth = 5;
+            waysideTrees.forEach(line => {
+                if(engineIgnited) {
+                    line.zPosition -= (engineVelocityModifier * 0.0015);
+                    if(line.zPosition <= 0.01) line.zPosition = 1.0;
+                }
+                let relativePerspectiveScaleY = horizontalLineDividerY + (1.0 / line.zPosition) * 20;
+                if(relativePerspectiveScaleY > horizontalLineDividerY && relativePerspectiveScaleY < canvas.height * 0.85) {
+                    let segmentLengthWidth = (1.0 / line.zPosition) * 15;
+                    ctx.beginPath();
+                    ctx.moveTo(centerPointX, relativePerspectiveScaleY);
+                    ctx.lineTo(centerPointX, relativePerspectiveScaleY + segmentLengthWidth);
+                    ctx.stroke();
+
+                    ctx.fillStyle = "rgba(57, 255, 20, 0.15)";
+                    let objectLateralShiftX = centerPointX + (line.side * (1.0 / line.zPosition) * 85);
+                    ctx.beginPath();
+                    ctx.arc(objectLateralShiftX, relativePerspectiveScaleY, Math.min(60, (1.0 / line.zPosition) * 8), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+
+            // Bike Vector Model
+            let bikePositionCoordsX = canvas.width / 2;
+            let bikePositionCoordsY = canvas.height * 0.65;
+            ctx.save();
+            ctx.translate(bikePositionCoordsX, bikePositionCoordsY);
+
+            if(engineIgnited) {
+                let glowPulseRadius = 20 + (Math.random() * 20) + (engineVelocityModifier * 2);
+                let headlightGlowGradient = ctx.createRadialGradient(0, -10, 2, 0, -10, glowPulseRadius);
+                headlightGlowGradient.addColorStop(0, 'rgba(0, 240, 255, 1)');
+                headlightGlowGradient.addColorStop(0.5, 'rgba(255, 0, 85, 0.4)');
+                headlightGlowGradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = headlightGlowGradient;
+                ctx.fillRect(-50, -60, 100, 100);
+            }
+
+            ctx.fillStyle = "#070912";
+            ctx.strokeStyle = "rgba(255,255,255,0.08)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(-16, -20, 32, 60, 10);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = "#121829";
+            ctx.beginPath();
+            ctx.moveTo(-22, -25); ctx.lineTo(22, -25); ctx.lineTo(14, 25); ctx.lineTo(-14, 25);
+            ctx.closePath(); ctx.fill();
+
+            ctx.fillStyle = "#334155";
+            ctx.fillRect(-20, 15, 6, 20); ctx.fillRect(14, 15, 6, 20);
+
+            ctx.restore();
+
+            frameCount++;
+            let timestampNow = performance.now();
+            if(timestampNow - lastFpsUpdate >= 1000) {
+                fpsOutput = frameCount;
+                document.getElementById("meta-fps").innerText = fpsOutput + " FPS";
+                frameCount = 0;
+                lastFpsUpdate = timestampNow;
+            }
+
+            requestAnimationFrame(renderLoopPipeline);
+        }
+
+        renderLoopPipeline();
+    </script>
+</body>
+</html>
