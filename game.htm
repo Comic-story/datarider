@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DATA RIDER - Interactive Hardware & Speed Analyzer</title>
     <style>
         :root {
@@ -18,7 +18,9 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body, html {
@@ -42,8 +44,9 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 40px 20px;
+            padding: 30px 20px;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
         }
 
         #landingPortal.launched {
@@ -53,8 +56,7 @@
         }
 
         .web-header {
-            text-align: center;
-            margin-top: 40px;
+            margin-top: 20px;
         }
 
         .web-badge {
@@ -69,23 +71,23 @@
             font-weight: bold;
             display: inline-block;
             margin-bottom: 15px;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
         }
 
         .web-title {
-            font-size: 3.8rem;
+            font-size: calc(1.8rem + 2vw);
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 8px;
+            letter-spacing: 6px;
             color: #fff;
             text-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
         }
 
         .web-tagline {
-            font-size: 1.1rem;
+            font-size: calc(0.8rem + 0.3vw);
             color: #94a3b8;
             margin-top: 10px;
             font-weight: 300;
+            padding: 0 10px;
         }
 
         .features-grid {
@@ -94,45 +96,38 @@
             gap: 20px;
             max-width: 900px;
             width: 100%;
-            margin: 40px 0;
-        }
-
-        @media (max-width: 768px) {
-            .features-grid { grid-template-columns: 1fr; gap: 15px; }
-            .web-title { font-size: 2.5rem; letter-spacing: 4px; }
+            margin: 20px 0;
         }
 
         .feature-card {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--panel-border);
             border-radius: 12px;
-            padding: 25px;
-            text-align: center;
+            padding: 20px;
             backdrop-filter: blur(10px);
         }
 
         .feature-card h3 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #fff;
             margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .feature-card p {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #64748b;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .primary-web-btn {
             background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
             color: #020617;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            padding: 20px 50px;
+            letter-spacing: 2px;
+            padding: 16px 40px;
             border: none;
             border-radius: 50px;
             cursor: pointer;
@@ -141,62 +136,60 @@
         }
 
         .primary-web-btn:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
             box-shadow: 0 0 50px var(--neon-blue);
         }
 
         .web-footer {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #475569;
-            letter-spacing: 1px;
         }
 
-        /* INTERACTIVE GAME OVERLAYS */
+        /* OVERLAYS & POPUPS */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(3, 3, 8, 0.9);
+            background: rgba(3, 3, 8, 0.92);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s ease;
+            transition: all 0.5s ease;
         }
 
         .overlay.hidden {
             opacity: 0;
             pointer-events: none;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
         .garage-panel {
             background: var(--glass-bg);
             border: 1px solid var(--panel-border);
-            padding: 30px;
+            padding: 25px;
             border-radius: 16px;
             text-align: center;
             backdrop-filter: blur(15px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            max-width: 400px;
             width: 90%;
+            max-width: 380px;
         }
 
         .control-btn {
             width: 100%;
-            padding: 16px 25px;
-            font-size: 1.1rem;
+            padding: 14px 20px;
+            font-size: 1rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .btn-engine {
@@ -215,7 +208,7 @@
         .btn-race {
             background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
             color: #020617;
-            opacity: 0.5;
+            opacity: 0.4;
             pointer-events: none;
         }
 
@@ -225,11 +218,7 @@
             box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
         }
 
-        .btn-race.ready:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px var(--neon-blue);
-        }
-
+        /* VIEWPORT CANVAS */
         #gameViewport {
             position: absolute;
             top: 0;
@@ -239,14 +228,15 @@
             z-index: 1;
         }
 
+        /* HUD TOP STRIP */
         .top-hud-strip {
             position: absolute;
-            top: 25px;
+            top: 15px;
             left: 0;
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 40px;
+            padding: 0 15px;
             z-index: 10;
             pointer-events: none;
         }
@@ -254,103 +244,99 @@
         .hud-bubble {
             background: var(--glass-bg);
             border: 1px solid var(--panel-border);
-            padding: 10px 20px;
+            padding: 6px 14px;
             border-radius: 8px;
             backdrop-filter: blur(10px);
         }
 
         .hud-bubble small {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .hud-bubble span {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
             color: #fff;
         }
 
-        /* BIKE COCKPIT INTEGRATION */
+        /* COCKPIT CHASSIS - FIXING THE MOBILE VS PC PROBLEM */
         .cockpit-chassis {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(to top, #04060e 0%, rgba(6, 9, 22, 0.95) 75%, transparent 100%);
-            padding: 20px 40px 30px 40px;
+            background: linear-gradient(to top, #04060e 0%, rgba(6, 9, 22, 0.95) 80%, transparent 100%);
+            padding: 15px 10px 25px 10px;
             display: flex;
             justify-content: center;
-            align-items: flex-end;
-            gap: 40px;
+            align-items: center;
+            gap: 15px;
             z-index: 10;
             border-top: 1px solid rgba(255,255,255,0.03);
             backdrop-filter: blur(8px);
         }
 
-        @media (max-width: 768px) {
-            .cockpit-chassis { flex-direction: column; align-items: center; gap: 15px; padding: 15px; }
-            .mid-display-matrix { width: 100% !important; }
-        }
-
         .round-gauge {
-            width: 130px;
-            height: 130px;
+            width: calc(75px + 4vw);
+            height: calc(75px + 4vw);
+            max-width: 130px;
+            max-height: 130px;
             border-radius: 50%;
             background: radial-gradient(circle at center, #0a0f1d 0%, #02040a 100%);
-            border: 4px solid #1e293b;
+            border: 3px solid #1e293b;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 10px 25px rgba(0,0,0,0.6);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9), 0 5px 15px rgba(0,0,0,0.5);
+            flex-shrink: 0;
         }
 
         .round-gauge::before {
             content: '';
             position: absolute;
-            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            top: -3px; left: -3px; right: -3px; bottom: -3px;
             border-radius: 50%;
-            border: 4px solid transparent;
+            border: 3px solid transparent;
         }
 
         .round-gauge.download::before { border-top-color: var(--neon-green); border-right-color: var(--neon-green); }
         .round-gauge.upload::before { border-top-color: var(--neon-blue); border-right-color: var(--neon-blue); }
 
         .round-gauge label {
-            font-size: 0.65rem;
+            font-size: calc(0.5rem + 0.2vw);
             color: #475569;
             text-transform: uppercase;
             font-weight: 800;
-            letter-spacing: 1px;
         }
 
         .round-gauge .value {
-            font-size: 1.6rem;
+            font-size: calc(1rem + 1vw);
             font-weight: 900;
             color: #fff;
         }
 
         .mid-display-matrix {
-            width: 340px;
+            width: 100%;
+            max-width: 340px;
             background: #020408;
-            border: 2px solid #1e293b;
+            border: 1px solid #1e293b;
             border-radius: 12px;
-            padding: 15px;
+            padding: 10px 12px;
             box-shadow: 0 0 25px rgba(0,0,0,0.8);
         }
 
         .matrix-header {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
             color: var(--neon-blue);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             border-bottom: 1px solid #1e293b;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
@@ -359,37 +345,48 @@
         .matrix-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 6px 10px;
         }
 
-        .matrix-cell { font-size: 0.8rem; }
-        .matrix-cell label { display: block; font-size: 0.65rem; color: #475569; text-transform: uppercase; }
-        .matrix-cell span { font-weight: 600; color: #cbd5e1; }
+        .matrix-cell { font-size: 0.75rem; }
+        .matrix-cell label { display: block; font-size: 0.55rem; color: #475569; text-transform: uppercase; }
+        .matrix-cell span { font-weight: 600; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;}
 
-        /* FINAL RESULTS POPUP SHEET */
+        /* FINAL RESULTS REPORT BOARD */
         .report-board {
             background: var(--glass-bg);
             border: 2px solid var(--panel-border);
             border-radius: 20px;
-            padding: 40px;
-            max-width: 600px;
-            width: 90%;
+            padding: 25px;
+            max-width: 500px;
+            width: 92%;
             backdrop-filter: blur(20px);
             box-shadow: 0 30px 70px rgba(0,0,0,0.8);
         }
 
-        .report-header { text-align: center; margin-bottom: 30px; }
-        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
-        .spec-tile { background: rgba(2, 4, 8, 0.6); border: 1px solid rgba(255,255,255,0.04); padding: 14px 18px; border-radius: 8px; }
-        .spec-tile p { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
-        .spec-tile h3 { font-size: 1.4rem; margin-top: 3px; font-weight: 700; color: #fff; }
+        .report-header { text-align: center; margin-bottom: 20px; }
+        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .spec-tile { background: rgba(2, 4, 8, 0.6); border: 1px solid rgba(255,255,255,0.04); padding: 10px 14px; border-radius: 8px; }
+        .spec-tile p { font-size: 0.65rem; color: #64748b; text-transform: uppercase; }
+        .spec-tile h3 { font-size: 1.2rem; margin-top: 2px; font-weight: 700; color: #fff; }
+
+        /* RESPONSIVE MEDIA BREAKPOINTS */
+        @media (max-width: 768px) {
+            .features-grid { grid-template-columns: 1fr; gap: 10px; }
+            .web-title { font-size: 2.2rem; letter-spacing: 3px; }
+            .feature-card { padding: 12px; }
+            .matrix-cell { font-size: 0.7rem; }
+            .report-board { padding: 15px; }
+            .spec-tile h3 { font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- PORTAL ENTRY STAGE -->
     <div id="landingPortal">
         <div class="web-header">
-            <div class="web-badge">v2.0 Web Live System</div>
+            <div class="web-badge">v2.0 Universal Engine</div>
             <h1 class="web-title">Data Rider</h1>
             <p class="web-tagline">Real-time Hardware Metrics & Net-Speed Gamified Simulator</p>
         </div>
@@ -397,39 +394,38 @@
         <div class="features-grid">
             <div class="feature-card">
                 <h3>⚡ Speed Synced Racing</h3>
-                <p>The actual real-time download and upload speed of your internet will drive the acceleration velocity of the bike.</p>
+                <p>Internet ki live downloading aur uploading speed bike ki speed control karegi.</p>
             </div>
             <div class="feature-card">
-                <h3>📱 Hardware Core Scan</h3>
-                <p>Your device hardware specs, phone screen active resolution, and precise live battery configuration tracking.</p>
+                <h3>📱 Universal Core Scan</h3>
+                <p>Phone, PC ya Tablet—yeh har device ka screen size aur live battery scan karta hai.</p>
             </div>
             <div class="feature-card">
-                <h3>🎮 Zero Lag Canvas</h3>
-                <p>Pure raw performance rendering module built completely on silent high-refresh visual telemetry maps.</p>
+                <h3>🎮 Uniform Canvas</h3>
+                <p>Aap chahe mobile se open karein ya laptop se, design aur resolution ekdam perfect stretch hoga.</p>
             </div>
         </div>
 
         <button class="primary-web-btn" onclick="enterWebsiteApp()">Enter Simulator</button>
-
-        <div class="web-footer">
-            &copy; 2026 Data Rider Systems Inc. All Diagnostics Monitored Safely.
-        </div>
+        <div class="web-footer">&copy; 2026 Data Rider Systems Inc. All Diagnostics Monitored Safely.</div>
     </div>
 
+    <!-- STAGE 1: GARAGE CALIBRATION INTERFACE -->
     <div class="overlay" id="garageBay">
-        <h2 style="text-transform: uppercase; letter-spacing: 4px; margin-bottom: 10px;">Vehicle Tuning Bay</h2>
-        <p style="color:#64748b; font-size:0.9rem; margin-bottom:30px;">Calibrate system components to establish stable stream tunnels.</p>
+        <h2 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-size: 1.3rem;">Vehicle Tuning Bay</h2>
+        <p style="color:#64748b; font-size:0.8rem; margin-bottom:20px; text-align: center;">Calibrate system components to establish stable stream tunnels.</p>
         <div class="garage-panel">
             <button class="control-btn btn-engine" id="engineBtn" onclick="igniteBikeEngine()">1. Start Engine</button>
             <button class="control-btn btn-race" id="raceBtn" onclick="launchRaceCircuit()">2. Start Race</button>
         </div>
     </div>
 
+    <!-- STAGE 2: LIVE SIMULATION FINISH MODAL -->
     <div class="overlay hidden" id="diagnosticsBoard">
         <div class="report-board">
             <div class="report-header">
-                <h2 style="text-transform: uppercase; letter-spacing: 3px; color: var(--neon-blue);">Race Completed</h2>
-                <p style="color: #64748b; font-size: 0.9rem; margin-top: 5px;">Final Speed Test Result Profile</p>
+                <h2 style="text-transform: uppercase; letter-spacing: 2px; color: var(--neon-blue); font-size: 1.4rem;">Race Completed</h2>
+                <p style="color: #64748b; font-size: 0.8rem; margin-top: 3px;">Final Speed Test Result Profile</p>
             </div>
 
             <div class="specs-grid">
@@ -446,6 +442,7 @@
         </div>
     </div>
 
+    <!-- GRAPHICS RENDER GRID LAYER -->
     <div class="game-container">
         <div class="top-hud-strip">
             <div class="hud-bubble">
@@ -460,11 +457,12 @@
 
         <canvas id="gameViewport"></canvas>
 
+        <!-- COCKPIT CONTROL POD CONSOLE -->
         <div class="cockpit-chassis">
             <div class="round-gauge download">
                 <label>Download</label>
                 <div class="value" id="meter-download">0</div>
-                <label style="color: #64748b;">Mbps</label>
+                <label style="color: #64748b; font-size: 0.55rem;">Mbps</label>
             </div>
 
             <div class="mid-display-matrix">
@@ -485,11 +483,12 @@
             <div class="round-gauge upload">
                 <label>Upload</label>
                 <div class="value" id="meter-upload">0</div>
-                <label style="color: #64748b;">Mbps</label>
+                <label style="color: #64748b; font-size: 0.55rem;">Mbps</label>
             </div>
         </div>
     </div>
 
+    <!-- CORE SIMULATION SCRIPTS PIPELINE -->
     <script>
         const canvas = document.getElementById("gameViewport");
         const ctx = canvas.getContext("2d");
@@ -532,32 +531,32 @@
             document.getElementById("meta-res").innerText = resString;
             
             const agent = navigator.userAgent;
-            let browser = "Webkit Engine";
-            if(agent.indexOf("Chrome") > -1) browser = "Google Chrome";
-            else if(agent.indexOf("Firefox") > -1) browser = "Mozilla Firefox";
-            else if(agent.indexOf("Safari") > -1) browser = "Apple Safari";
+            let browser = "Webkit";
+            if(agent.indexOf("Chrome") > -1) browser = "Chrome";
+            else if(agent.indexOf("Firefox") > -1) browser = "Firefox";
+            else if(agent.indexOf("Safari") > -1) browser = "Safari";
             document.getElementById("meta-browser").innerText = browser;
 
-            let hardwareCore = "Desktop Workstation";
-            if(/Android/i.test(agent)) hardwareCore = "Android Phone";
-            else if(/iPhone|iPad/i.test(agent)) hardwareCore = "iOS Terminal";
-            else if(/Windows/i.test(agent)) hardwareCore = "Windows PC";
-            else if(/Macintosh/i.test(agent)) hardwareCore = "Mac Station";
+            let hardwareCore = "PC Station";
+            if(/Android/i.test(agent)) hardwareCore = "Android";
+            else if(/iPhone|iPad/i.test(agent)) hardwareCore = "iOS Device";
+            else if(/Windows/i.test(agent)) hardwareCore = "Windows";
+            else if(/Macintosh/i.test(agent)) hardwareCore = "MacOS";
             document.getElementById("meta-model").innerText = hardwareCore;
 
             if(navigator.getBattery) {
                 navigator.getBattery().then(battery => {
                     function mapBattery() {
                         document.getElementById("meta-battery").innerText = Math.round(battery.level * 100) + "%";
-                        document.getElementById("meta-charging").innerText = battery.charging ? "AC Charging" : "Discharging";
+                        document.getElementById("meta-charging").innerText = battery.charging ? "Charging" : "Battery";
                     }
                     mapBattery();
                     battery.addEventListener('levelchange', mapBattery);
                     battery.addEventListener('chargingchange', mapBattery);
                 });
             } else {
-                document.getElementById("meta-battery").innerText = "92%";
-                document.getElementById("meta-charging").innerText = "Battery Powered";
+                document.getElementById("meta-battery").innerText = "100%";
+                document.getElementById("meta-charging").innerText = "AC Power";
             }
         }
         runHardwareDiagnostics();
@@ -621,7 +620,7 @@
             document.getElementById("card-fps").innerText = fpsOutput + " FPS";
             document.getElementById("card-battery").innerText = document.getElementById("meta-battery").innerText;
             document.getElementById("card-res").innerText = window.screen.width + " x " + window.screen.height;
-            document.getElementById("card-screensize").innerText = window.innerWidth + " x " + window.innerHeight + " (Viewport)";
+            document.getElementById("card-screensize").innerText = window.innerWidth + " x " + window.innerHeight + " (Px)";
 
             setTimeout(() => {
                 document.getElementById("diagnosticsBoard").classList.remove("hidden");
