@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DATA RIDER - Interactive Hardware & Speed Analyzer</title>
     <style>
         :root {
@@ -29,6 +29,7 @@
             overflow: hidden;
             background-color: #04040c;
             color: #f1f5f9;
+            position: relative;
         }
 
         /* WEBSITE LANDING SCREEN (WELCOME PORTAL) */
@@ -44,9 +45,10 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 30px 20px;
+            padding: 40px 20px;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
+            overflow-y: auto;
         }
 
         #landingPortal.launched {
@@ -56,7 +58,7 @@
         }
 
         .web-header {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .web-badge {
@@ -83,7 +85,7 @@
         }
 
         .web-tagline {
-            font-size: calc(0.8rem + 0.3vw);
+            font-size: calc(0.75rem + 0.3vw);
             color: #94a3b8;
             margin-top: 10px;
             font-weight: 300;
@@ -93,7 +95,7 @@
         .features-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 15px;
             max-width: 900px;
             width: 100%;
             margin: 20px 0;
@@ -103,19 +105,19 @@
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--panel-border);
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             backdrop-filter: blur(10px);
         }
 
         .feature-card h3 {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #fff;
             margin-bottom: 8px;
             text-transform: uppercase;
         }
 
         .feature-card p {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #64748b;
             line-height: 1.4;
         }
@@ -123,16 +125,18 @@
         .primary-web-btn {
             background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
             color: #020617;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 2px;
-            padding: 16px 40px;
+            padding: 14px 35px;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
             transition: all 0.3s ease;
+            margin: 15px 0;
+            flex-shrink: 0;
         }
 
         .primary-web-btn:hover {
@@ -141,7 +145,7 @@
         }
 
         .web-footer {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #475569;
         }
 
@@ -159,6 +163,7 @@
             align-items: center;
             z-index: 100;
             transition: all 0.5s ease;
+            padding: 15px;
         }
 
         .overlay.hidden {
@@ -174,8 +179,8 @@
             border-radius: 16px;
             text-align: center;
             backdrop-filter: blur(15px);
-            width: 90%;
-            max-width: 380px;
+            width: 100%;
+            max-width: 360px;
         }
 
         .control-btn {
@@ -219,6 +224,12 @@
         }
 
         /* VIEWPORT CANVAS */
+        .game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
         #gameViewport {
             position: absolute;
             top: 0;
@@ -226,12 +237,13 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            display: block;
         }
 
         /* HUD TOP STRIP */
         .top-hud-strip {
             position: absolute;
-            top: 15px;
+            top: env(safe-area-inset-top, 15px);
             left: 0;
             width: 100%;
             display: flex;
@@ -244,97 +256,99 @@
         .hud-bubble {
             background: var(--glass-bg);
             border: 1px solid var(--panel-border);
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 8px;
             backdrop-filter: blur(10px);
         }
 
         .hud-bubble small {
             display: block;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #64748b;
             text-transform: uppercase;
         }
 
         .hud-bubble span {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: bold;
             color: #fff;
         }
 
-        /* COCKPIT CHASSIS - FIXING THE MOBILE VS PC PROBLEM */
+        /* COCKPIT CHASSIS - FULLY RESPONSIVE FOR MOBILE BOXES */
         .cockpit-chassis {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(to top, #04060e 0%, rgba(6, 9, 22, 0.95) 80%, transparent 100%);
-            padding: 15px 10px 25px 10px;
+            background: linear-gradient(to top, #04060e 0%, rgba(6, 9, 22, 0.98) 85%, transparent 100%);
+            padding: 15px 10px calc(15px + env(safe-area-inset-bottom, 10px)) 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             z-index: 10;
             border-top: 1px solid rgba(255,255,255,0.03);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
         }
 
         .round-gauge {
-            width: calc(75px + 4vw);
-            height: calc(75px + 4vw);
-            max-width: 130px;
-            max-height: 130px;
+            width: calc(65px + 5vw);
+            height: calc(65px + 5vw);
+            max-width: 115px;
+            max-height: 115px;
             border-radius: 50%;
             background: radial-gradient(circle at center, #0a0f1d 0%, #02040a 100%);
-            border: 3px solid #1e293b;
+            border: 2px solid #1e293b;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.9), 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.9), 0 4px 10px rgba(0,0,0,0.5);
             flex-shrink: 0;
         }
 
         .round-gauge::before {
             content: '';
             position: absolute;
-            top: -3px; left: -3px; right: -3px; bottom: -3px;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
             border-radius: 50%;
-            border: 3px solid transparent;
+            border: 2.5px solid transparent;
         }
 
         .round-gauge.download::before { border-top-color: var(--neon-green); border-right-color: var(--neon-green); }
         .round-gauge.upload::before { border-top-color: var(--neon-blue); border-right-color: var(--neon-blue); }
 
         .round-gauge label {
-            font-size: calc(0.5rem + 0.2vw);
+            font-size: calc(0.45rem + 0.1vw);
             color: #475569;
             text-transform: uppercase;
             font-weight: 800;
+            letter-spacing: 0.5px;
         }
 
         .round-gauge .value {
-            font-size: calc(1rem + 1vw);
+            font-size: calc(0.9rem + 1vw);
             font-weight: 900;
             color: #fff;
+            line-height: 1.1;
         }
 
         .mid-display-matrix {
-            width: 100%;
-            max-width: 340px;
+            flex-grow: 1;
+            max-width: 320px;
             background: #020408;
             border: 1px solid #1e293b;
-            border-radius: 12px;
-            padding: 10px 12px;
-            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            border-radius: 10px;
+            padding: 8px 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
         .matrix-header {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             color: var(--neon-blue);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #1e293b;
             padding-bottom: 4px;
             font-weight: bold;
@@ -345,11 +359,11 @@
         .matrix-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px 10px;
+            gap: 4px 8px;
         }
 
-        .matrix-cell { font-size: 0.75rem; }
-        .matrix-cell label { display: block; font-size: 0.55rem; color: #475569; text-transform: uppercase; }
+        .matrix-cell { font-size: 0.7rem; }
+        .matrix-cell label { display: block; font-size: 0.5rem; color: #475569; text-transform: uppercase; }
         .matrix-cell span { font-weight: 600; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;}
 
         /* FINAL RESULTS REPORT BOARD */
@@ -357,33 +371,46 @@
             background: var(--glass-bg);
             border: 2px solid var(--panel-border);
             border-radius: 20px;
-            padding: 25px;
-            max-width: 500px;
-            width: 92%;
+            padding: 20px;
+            max-width: 440px;
+            width: 100%;
             backdrop-filter: blur(20px);
             box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
-        .report-header { text-align: center; margin-bottom: 20px; }
-        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        .spec-tile { background: rgba(2, 4, 8, 0.6); border: 1px solid rgba(255,255,255,0.04); padding: 10px 14px; border-radius: 8px; }
-        .spec-tile p { font-size: 0.65rem; color: #64748b; text-transform: uppercase; }
-        .spec-tile h3 { font-size: 1.2rem; margin-top: 2px; font-weight: 700; color: #fff; }
+        .report-header { text-align: center; margin-bottom: 15px; }
+        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
+        .spec-tile { background: rgba(2, 4, 8, 0.6); border: 1px solid rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; }
+        .spec-tile p { font-size: 0.6rem; color: #64748b; text-transform: uppercase; }
+        .spec-tile h3 { font-size: 1.1rem; margin-top: 2px; font-weight: 700; color: #fff; }
 
-        /* RESPONSIVE MEDIA BREAKPOINTS */
+        /* RESPONSIVE MEDIA BREAKPOINTS FOR COMPACT DEVICE OVERRIDES */
         @media (max-width: 768px) {
-            .features-grid { grid-template-columns: 1fr; gap: 10px; }
-            .web-title { font-size: 2.2rem; letter-spacing: 3px; }
-            .feature-card { padding: 12px; }
-            .matrix-cell { font-size: 0.7rem; }
-            .report-board { padding: 15px; }
-            .spec-tile h3 { font-size: 1.1rem; }
+            .features-grid { grid-template-columns: 1fr; gap: 8px; margin: 10px 0; }
+            .web-title { font-size: 2rem; letter-spacing: 2px; }
+            .feature-card { padding: 10px; }
+            .feature-card h3 { font-size: 0.8rem; }
+            .feature-card p { font-size: 0.7rem; }
+            .primary-web-btn { font-size: 0.9rem; padding: 12px 30px; }
+            
+            .cockpit-chassis { padding: 10px 6px calc(10px + env(safe-area-inset-bottom, 5px)) 6px; gap: 6px; }
+            .mid-display-matrix { padding: 6px 8px; }
+            .matrix-grid { gap: 3px 6px; }
+            .matrix-cell label { font-size: 0.45rem; }
+            .matrix-cell span { font-size: 0.65rem; }
+            .round-gauge { border-width: 1.5px; }
+        }
+
+        @media (max-width: 360px) {
+            .mid-display-matrix { display: none; } /* Sobhi ultra-small screen par control panel ko protect karne k liye */
+            .cockpit-chassis { justify-content: space-around; }
         }
     </style>
 </head>
 <body>
 
-    <!-- PORTAL ENTRY STAGE -->
     <div id="landingPortal">
         <div class="web-header">
             <div class="web-badge">v2.0 Universal Engine</div>
@@ -410,22 +437,20 @@
         <div class="web-footer">&copy; 2026 Data Rider Systems Inc. All Diagnostics Monitored Safely.</div>
     </div>
 
-    <!-- STAGE 1: GARAGE CALIBRATION INTERFACE -->
     <div class="overlay" id="garageBay">
-        <h2 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-size: 1.3rem;">Vehicle Tuning Bay</h2>
-        <p style="color:#64748b; font-size:0.8rem; margin-bottom:20px; text-align: center;">Calibrate system components to establish stable stream tunnels.</p>
+        <h2 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-size: 1.2rem;">Vehicle Tuning Bay</h2>
+        <p style="color:#64748b; font-size:0.75rem; margin-bottom:20px; text-align: center;">Calibrate system components to establish stable stream tunnels.</p>
         <div class="garage-panel">
             <button class="control-btn btn-engine" id="engineBtn" onclick="igniteBikeEngine()">1. Start Engine</button>
             <button class="control-btn btn-race" id="raceBtn" onclick="launchRaceCircuit()">2. Start Race</button>
         </div>
     </div>
 
-    <!-- STAGE 2: LIVE SIMULATION FINISH MODAL -->
     <div class="overlay hidden" id="diagnosticsBoard">
         <div class="report-board">
             <div class="report-header">
-                <h2 style="text-transform: uppercase; letter-spacing: 2px; color: var(--neon-blue); font-size: 1.4rem;">Race Completed</h2>
-                <p style="color: #64748b; font-size: 0.8rem; margin-top: 3px;">Final Speed Test Result Profile</p>
+                <h2 style="text-transform: uppercase; letter-spacing: 2px; color: var(--neon-blue); font-size: 1.3rem;">Race Completed</h2>
+                <p style="color: #64748b; font-size: 0.75rem; margin-top: 3px;">Final Speed Test Result Profile</p>
             </div>
 
             <div class="specs-grid">
@@ -442,7 +467,6 @@
         </div>
     </div>
 
-    <!-- GRAPHICS RENDER GRID LAYER -->
     <div class="game-container">
         <div class="top-hud-strip">
             <div class="hud-bubble">
@@ -457,12 +481,11 @@
 
         <canvas id="gameViewport"></canvas>
 
-        <!-- COCKPIT CONTROL POD CONSOLE -->
         <div class="cockpit-chassis">
             <div class="round-gauge download">
                 <label>Download</label>
                 <div class="value" id="meter-download">0</div>
-                <label style="color: #64748b; font-size: 0.55rem;">Mbps</label>
+                <label style="color: #64748b; font-size: 0.5rem;">Mbps</label>
             </div>
 
             <div class="mid-display-matrix">
@@ -483,12 +506,11 @@
             <div class="round-gauge upload">
                 <label>Upload</label>
                 <div class="value" id="meter-upload">0</div>
-                <label style="color: #64748b; font-size: 0.55rem;">Mbps</label>
+                <label style="color: #64748b; font-size: 0.5rem;">Mbps</label>
             </div>
         </div>
     </div>
 
-    <!-- CORE SIMULATION SCRIPTS PIPELINE -->
     <script>
         const canvas = document.getElementById("gameViewport");
         const ctx = canvas.getContext("2d");
